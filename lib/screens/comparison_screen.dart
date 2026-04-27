@@ -162,7 +162,7 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Table(
-                    border: TableBorder.all(color: Colors.grey.shade300),
+                    border: TableBorder.all(color: Colors.grey.shade700),
                     columnWidths: const {
                       0: FlexColumnWidth(1),
                       1: FlexColumnWidth(1),
@@ -171,7 +171,7 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
                     children: [
                       // Header Row
                       TableRow(
-                        decoration: BoxDecoration(color: Colors.grey.shade200),
+                        decoration: BoxDecoration(color: Colors.white),
                         children: [
                           const Padding(
                             padding: EdgeInsets.all(8.0),
@@ -185,17 +185,26 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
                       for (var key in uniqueKeys)
                         TableRow(
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(key, style: const TextStyle(fontWeight: FontWeight.w500)),
+                            Container(
+                              color: Colors.green.withOpacity(0.1),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(key, style: const TextStyle(fontWeight: FontWeight.w500)),
+                              ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(_selectedProductA?.details[key]?.toString() ?? '-'),
+                            Container(
+                              color: Colors.yellow.withOpacity(0.05),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(_selectedProductA?.details[key]?.toString() ?? '-'),
+                              ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(_selectedProductB?.details[key]?.toString() ?? '-'),
+                            Container(
+                              color: Colors.blue.withOpacity(0.05),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(_selectedProductB?.details[key]?.toString() ?? '-'),
+                              ),
                             ),
                           ],
                         ),
