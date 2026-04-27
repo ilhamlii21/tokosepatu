@@ -41,7 +41,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     }
   }
 
-  void _addDynamicField() {
+  void _addDynamicField() { //add untuk kolom inputan dinamis 
     setState(() {
       _dynamicFields.add({
         'key': TextEditingController(),
@@ -50,7 +50,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     });
   }
 
-  void _removeDynamicField(int index) {
+  void _removeDynamicField(int index) { //remove untuk kolom inputan dinamis
     setState(() {
       _dynamicFields[index]['key']?.dispose();
       _dynamicFields[index]['value']?.dispose();
@@ -58,7 +58,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     });
   }
 
-  Future<void> _saveProduct() async {
+  Future<void> _saveProduct() async { //save untuk data product
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
@@ -108,7 +108,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     }
   }
 
-  Future<void> _deleteProduct() async {
+  Future<void> _deleteProduct() async { //delete untuk product
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -234,7 +234,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                           child: TextFormField(
                             controller: field['key'],
                             decoration: const InputDecoration(
-                              hintText: 'Key (e.g. Warna)',
+                              hintText: 'Key (Contoh : Warna)',
                               isDense: true,
                             ),
                           ),
@@ -245,7 +245,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                           child: TextFormField(
                             controller: field['value'],
                             decoration: const InputDecoration(
-                              hintText: 'Value (e.g. Merah)',
+                              hintText: 'Value (Contoh : Merah)',
                               isDense: true,
                             ),
                           ),
