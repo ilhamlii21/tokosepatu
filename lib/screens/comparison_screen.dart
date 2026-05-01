@@ -19,7 +19,11 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
   bool _isLoading = true;
 
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _categoryController = TextEditingController();
+  final TextEditingController _roleController = TextEditingController();
   String _searchQuery = '';
+  String _categoryQuery = '';
+  String _roleQuery = '';
   Timer? _debounce;
 
   @override
@@ -32,6 +36,8 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
   void dispose() {
     _debounce?.cancel();
     _searchController.dispose();
+    _categoryController.dispose();
+    _roleController.dispose();
     super.dispose();
   }
 
@@ -40,6 +46,26 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
     _debounce = Timer(const Duration(milliseconds: 500), () {
       setState(() {
         _searchQuery = query;
+      });
+      _fetchProducts();
+    });
+  }
+
+  void _onCategoryChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        _categoryQuery = query;
+      });
+      _fetchProducts();
+    });
+  }
+
+  void _onRoleChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        _roleQuery = query;
       });
       _fetchProducts();
     });
@@ -54,6 +80,12 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
       
       if (_searchQuery.isNotEmpty) {
         query = query.ilike('name', '%$_searchQuery%');
+      }
+      if (_categoryQuery.isNotEmpty) {
+        query = query.ilike('category', '%$_categoryQuery%');
+      }
+      if (_roleQuery.isNotEmpty) {
+        query = query.ilike('details->>roleTechManifest', '%$_roleQuery%');
       }
 
       final response = await query;
@@ -158,19 +190,79 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        labelText: 'Cari nama produk',
+                        hintText: 'Masukkan nama...',
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: _searchQuery.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() {
+                                    _searchQuery = '';
+                                  });
+                                  _fetchProducts();
+                                },
+                              )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      onChanged: _onSearchChanged,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: _categoryController,
+                      decoration: InputDecoration(
+                        labelText: 'Cari kategori',
+                        hintText: 'Masukkan kategori...',
+                        prefixIcon: const Icon(Icons.category),
+                        suffixIcon: _categoryQuery.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  _categoryController.clear();
+                                  setState(() {
+                                    _categoryQuery = '';
+                                  });
+                                  _fetchProducts();
+                                },
+                              )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      onChanged: _onCategoryChanged,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
               child: TextField(
-                controller: _searchController,
+                controller: _roleController,
                 decoration: InputDecoration(
-                  labelText: 'Cari nama produk',
-                  hintText: 'Masukkan nama...',
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: _searchQuery.isNotEmpty
+                  labelText: 'Tech Manifest',
+                  hintText: 'Misal: frontend / backend...',
+                  prefixIcon: const Icon(Icons.work),
+                  suffixIcon: _roleQuery.isNotEmpty
                       ? IconButton(
                           icon: const Icon(Icons.clear),
                           onPressed: () {
-                            _searchController.clear();
+                            _roleController.clear();
                             setState(() {
-                              _searchQuery = '';
+                              _roleQuery = '';
                             });
                             _fetchProducts();
                           },
@@ -180,7 +272,7 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                onChanged: _onSearchChanged,
+                onChanged: _onRoleChanged,
               ),
             ),
             Row(
