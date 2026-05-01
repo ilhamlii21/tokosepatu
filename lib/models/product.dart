@@ -3,12 +3,14 @@ class Product {
   final String? name;
   final String? category;
   final Map<String, dynamic> details;
+  final DateTime? createdAt;
 
   Product({
     required this.id,
     this.name,
     this.category,
     required this.details,
+    this.createdAt,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class Product {
       name: json['name']?.toString(),
       category: json['category']?.toString(),
       details: parsedDetails,
+      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) : null,
     );
   }
 }

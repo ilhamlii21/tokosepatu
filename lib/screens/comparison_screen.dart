@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/product.dart';
@@ -17,10 +18,31 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
   Product? _selectedProductB;
   bool _isLoading = true;
 
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  Timer? _debounce;
+
   @override
   void initState() {
     super.initState();
     _fetchProducts();
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        _searchQuery = query;
+      });
+      _fetchProducts();
+    });
   }
 
   Future<void> _fetchProducts() async {
@@ -28,7 +50,13 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
       _isLoading = true;
     });
     try {
-      final response = await _supabase.from('products').select();
+      var query = _supabase.from('products').select();
+      
+      if (_searchQuery.isNotEmpty) {
+        query = query.ilike('name', '%$_searchQuery%');
+      }
+
+      final response = await query;
       final List<Product> loadedProducts = 
           (response as List).map((e) => Product.fromJson(e)).toList();
       
@@ -128,6 +156,33 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  labelText: 'Cari nama produk',
+                  hintText: 'Masukkan nama...',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() {
+                              _searchQuery = '';
+                            });
+                            _fetchProducts();
+                          },
+                        )
+                      : null,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                onChanged: _onSearchChanged,
+              ),
+            ),
             Row(
               children: [
                 Expanded(
@@ -179,6 +234,31 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
                           ),
                           _buildTableHeader(_selectedProductA),
                           _buildTableHeader(_selectedProductB),
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          Container(
+                            color: Colors.green.withOpacity(0.1),
+                            child: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text('Created At', style: TextStyle(fontWeight: FontWeight.w500)),
+                            ),
+                          ),
+                          Container(
+                            color: Colors.yellow.withOpacity(0.05),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(_selectedProductA?.createdAt?.toLocal().toString().split('.')[0] ?? '-'),
+                            ),
+                          ),
+                          Container(
+                            color: Colors.blue.withOpacity(0.05),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(_selectedProductB?.createdAt?.toLocal().toString().split('.')[0] ?? '-'),
+                            ),
+                          ),
                         ],
                       ),
                       // Data Rows
